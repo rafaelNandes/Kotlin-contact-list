@@ -8,14 +8,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 //Gerenciamento de toda a lista do RecycleView
-class ContactAdapter : RecyclerView.Adapter<ContactAdapter.ContactAdapterViewHolder>(){
+class ContactAdapter(var listener: ClickItemContactListener) :
+RecyclerView.Adapter<ContactAdapter.ContactAdapterViewHolder>(){
 
     private val list: MutableList<Contact> = mutableListOf()
 
     //Responsável por criar a visualização de cada item na tela
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactAdapterViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
-        return ContactAdapterViewHolder(view)
+        return ContactAdapterViewHolder(view, list, listener)
     }
 
     //Percorre o array e popula a lista do RecycleView
@@ -36,10 +37,17 @@ class ContactAdapter : RecyclerView.Adapter<ContactAdapter.ContactAdapterViewHol
     }
 
     //Gerencia cada item da lista
-    class ContactAdapterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+    class ContactAdapterViewHolder(itemView: View, var list: List<Contact>, var listener: ClickItemContactListener) :
+    RecyclerView.ViewHolder(itemView){
         private val textViewName: TextView = itemView.findViewById(R.id.textView_name)
         private val textViewPhone: TextView = itemView.findViewById(R.id.textView_phone)
         private val imageViewPhotograph: ImageView = itemView.findViewById(R.id.imageView_photograph)
+
+        init {
+            itemView.setOnClickListener{
+                listener.clickItemContact(list[adapterPosition])
+            }
+        }
 
         fun bind(contact: Contact){
             textViewName.text = contact.name

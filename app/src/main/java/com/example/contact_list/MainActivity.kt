@@ -1,5 +1,6 @@
 package com.example.contact_list
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -13,13 +14,13 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ClickItemContactListener{
 
     //Obter o RecyclerView do Layout
     private val rvList: RecyclerView by lazy{
         findViewById<RecyclerView>(R.id.recyclerView_list)
     }
-    private val adapter = ContactAdapter()
+    private val adapter = ContactAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,4 +87,10 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
+    override fun clickItemContact(contact: Contact) {
+        val intent = Intent(this, ContactDetails::class.java)
+        startActivity(intent)
+    }
+
 }
