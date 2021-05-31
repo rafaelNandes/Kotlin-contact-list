@@ -1,8 +1,12 @@
 package com.example.contact_list
 
+import android.content.Context
+import android.content.Context.*
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings.Global.putString
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -10,10 +14,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.content.edit
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.contact_list.ContactDetails.Companion.EXTRA_CONTACT
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class MainActivity : AppCompatActivity(), ClickItemContactListener{
 
@@ -27,9 +34,33 @@ class MainActivity : AppCompatActivity(), ClickItemContactListener{
         super.onCreate(savedInstanceState)
         setContentView(R.layout.drawer_menu)
         initDrawer()
+        fetchListContact()
         bindOnView()
-        updateList()
     }
+
+    //Create the list and to save in SharedPreference
+    private fun fetchListContact() {
+        val list = arrayListOf(
+            Contact(
+                "Rafael Fernandes",
+                "(00) 1245-5698",
+                "img.png"
+            ),
+            Contact(
+                "Maria José",
+                "(00) 1245-5698",
+                "img.png"
+            )
+        )
+        getInstanceSharedPreferences().edit {
+            putString("contacts", Gson().toJson(list))
+        }
+    }
+
+    private fun getInstanceSharedPreferences(): SharedPreferences{
+        return getSharedPreferences("com.example.contact_list.PREFERENCES", Context.MODE_PRIVATE)
+    }
+
 
     //Initializing Drawer Layout and adding open and close actions
     private fun initDrawer() {
@@ -45,23 +76,17 @@ class MainActivity : AppCompatActivity(), ClickItemContactListener{
     private fun bindOnView(){
         rvList.adapter = adapter
         rvList.layoutManager = LinearLayoutManager(this)
+        updateList()
+    }
+
+    private fun getListContacts(): List<Contact>{
+        val list = getInstanceSharedPreferences().getString("contacts", "[]")
+        val turnsType = object : TypeToken<List<Contact>>(){}.type
+        return Gson().fromJson(list, turnsType)
     }
 
     private fun updateList(){
-        adapter.updateList(
-            arrayListOf(
-                Contact(
-                    "Rafael Fernandes",
-                    "(00) 1245-5698",
-                    "img.png"
-                ),
-                Contact(
-                    "Maria José",
-                    "(00) 1245-5698",
-                    "img.png"
-                )
-            )
-        )
+        adapter.updateList(getListContacts())
     }
 
     private fun showToast(message: String){
